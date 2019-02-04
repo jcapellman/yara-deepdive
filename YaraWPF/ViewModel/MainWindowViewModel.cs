@@ -1,5 +1,10 @@
-﻿using System.ComponentModel;
+﻿using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.IO;
+using System.Linq;
 using System.Runtime.CompilerServices;
+
 using YaraSharp;
 
 namespace YaraWPF.ViewModel
@@ -10,22 +15,28 @@ namespace YaraWPF.ViewModel
 
         public MainWindowViewModel()
         {
-
+            InitializeYara();
         }
 
         private void InitializeYara()
         {
+            var externals = new Dictionary<string, object>()
+            {
+                { "filename", string.Empty },
+                { "filepath", string.Empty },
+                { "extension", string.Empty }
+            };
+
+            var ruleFilenames = System.IO.Directory.GetFiles(Path.Combine(AppContext.BaseDirectory, "rules"), "*.yara").ToList();
+
             using (YSContext context = new YSContext())
             {
-                //	Compiling rules
                 using (YSCompiler compiler = ysInstance.CompileFromFiles(ruleFilenames, externals))
                 {
-                    //  Get compiled rules
                     YSRules rules = compiler.GetRules();
-
-                    //  Get errors
+                    
                     YSReport errors = compiler.GetErrors();
-                    //  Get warnings
+                    
                     YSReport warnings = compiler.GetWarnings();
 
                 }
